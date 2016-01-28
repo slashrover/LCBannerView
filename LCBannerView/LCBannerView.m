@@ -18,61 +18,6 @@ static CGFloat LCPageDistance = 10.0f;      // pageControl 到底部的距离
 
 @implementation LCBannerView
 
-+ (instancetype)bannerViewWithFrame:(CGRect)frame delegate:(id<LCBannerViewDelegate>)delegate imageName:(NSString *)imageName count:(NSInteger)count timerInterval:(NSInteger)timeInterval currentPageIndicatorTintColor:(UIColor *)currentPageIndicatorTintColor pageIndicatorTintColor:(UIColor *)pageIndicatorTintColor {
-    
-    return [[self alloc] initWithFrame:frame
-                              delegate:delegate
-                             imageName:imageName
-                                 count:count
-                         timerInterval:timeInterval
-         currentPageIndicatorTintColor:currentPageIndicatorTintColor
-                pageIndicatorTintColor:pageIndicatorTintColor];
-}
-
-+ (instancetype)bannerViewWithFrame:(CGRect)frame delegate:(id<LCBannerViewDelegate>)delegate imageURLs:(NSArray *)imageURLs placeholderImage:(NSString *)placeholderImage timerInterval:(NSInteger)timeInterval currentPageIndicatorTintColor:(UIColor *)currentPageIndicatorTintColor pageIndicatorTintColor:(UIColor *)pageIndicatorTintColor {
-    
-    return [[self alloc] initWithFrame:frame
-                              delegate:delegate
-                             imageURLs:imageURLs
-                      placeholderImage:placeholderImage
-                         timerInterval:timeInterval
-         currentPageIndicatorTintColor:currentPageIndicatorTintColor
-                pageIndicatorTintColor:pageIndicatorTintColor];
-}
-
-- (instancetype)initWithFrame:(CGRect)frame delegate:(id<LCBannerViewDelegate>)delegate imageName:(NSString *)imageName count:(NSInteger)count timerInterval:(NSInteger)timeInterval currentPageIndicatorTintColor:(UIColor *)currentPageIndicatorTintColor pageIndicatorTintColor:(UIColor *)pageIndicatorTintColor {
-    
-    if (self = [super initWithFrame:frame]) {
-        
-        self.delegate = delegate;
-        self.imageName = imageName;
-        self.count = count;
-        self.timerInterval = timeInterval;
-        self.currentPageIndicatorTintColor = currentPageIndicatorTintColor;
-        self.pageIndicatorTintColor = pageIndicatorTintColor;
-        
-        [self setupMainView];
-    }
-    return self;
-}
-
-- (instancetype)initWithFrame:(CGRect)frame delegate:(id<LCBannerViewDelegate>)delegate imageURLs:(NSArray *)imageURLs placeholderImage:(NSString *)placeholderImage timerInterval:(NSInteger)timeInterval currentPageIndicatorTintColor:(UIColor *)currentPageIndicatorTintColor pageIndicatorTintColor:(UIColor *)pageIndicatorTintColor {
-    
-    if (self = [super initWithFrame:frame]) {
-        
-        self.delegate = delegate;
-        self.imageURLs = imageURLs;
-        self.count = imageURLs.count;
-        self.timerInterval = timeInterval;
-        self.currentPageIndicatorTintColor = currentPageIndicatorTintColor;
-        self.pageIndicatorTintColor = pageIndicatorTintColor;
-        self.placeholderImage = placeholderImage;
-        
-        [self setupMainView];
-    }
-    return self;
-}
-
 - (void)setupMainView {
     
     CGFloat scrollW = self.frame.size.width;
@@ -128,7 +73,7 @@ static CGFloat LCPageDistance = 10.0f;      // pageControl 到底部的距离
             
             imageView.clipsToBounds = YES;
             imageView.userInteractionEnabled = YES;
-            imageView.contentMode = UIViewContentModeScaleAspectFill;
+            imageView.contentMode = UIViewContentModeScaleAspectFit;
             imageView.frame = CGRectMake(scrollW * i, 0, scrollW, scrollH);
             [scrollView addSubview:imageView];
             
@@ -146,19 +91,19 @@ static CGFloat LCPageDistance = 10.0f;      // pageControl 到底部的距离
         self.scrollView = scrollView;
     })];
     
-    [self addTimer];
-    
-    // set up pageControl
-    [self addSubview:({
-        
-        UIPageControl *pageControl = [[UIPageControl alloc] initWithFrame:CGRectMake(0, scrollH - 10.0f - LCPageDistance, scrollW, 10.0f)];
-        pageControl.numberOfPages = self.count;
-        pageControl.userInteractionEnabled = NO;
-        pageControl.currentPageIndicatorTintColor = self.currentPageIndicatorTintColor ?: [UIColor orangeColor];
-        pageControl.pageIndicatorTintColor = self.pageIndicatorTintColor ?: [UIColor lightGrayColor];
-        
-        self.pageControl = pageControl;
-    })];
+    if(_count > 1) {
+        // set up pageControl
+        [self addSubview:({
+            
+            UIPageControl *pageControl = [[UIPageControl alloc] initWithFrame:CGRectMake(0, scrollH - 10.0f - LCPageDistance, scrollW, 10.0f)];
+            pageControl.numberOfPages = self.count;
+            pageControl.userInteractionEnabled = NO;
+            pageControl.currentPageIndicatorTintColor = self.currentPageIndicatorTintColor ?: [UIColor orangeColor];
+            pageControl.pageIndicatorTintColor = self.pageIndicatorTintColor ?: [UIColor lightGrayColor];
+            
+            self.pageControl = pageControl;
+        })];
+    }
 }
 
 - (void)imageViewTaped:(UITapGestureRecognizer *)tap {
@@ -166,25 +111,6 @@ static CGFloat LCPageDistance = 10.0f;      // pageControl 到底部的距离
     if ([self.delegate respondsToSelector:@selector(bannerView:didClickedImageIndex:)]) {
         
         [self.delegate bannerView:self didClickedImageIndex:tap.view.tag - 1];
-    }
-}
-
-#pragma mark - Timer
-
-- (void)addTimer {
-    
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:self.timerInterval target:self selector:@selector(nextImage) userInfo:nil repeats:YES];
-    
-    [[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
-}
-
-- (void)removeTimer {
-    
-    if (self.timer) {
-        
-        [self.timer invalidate];
-        
-        self.timer = nil;
     }
 }
 
@@ -243,16 +169,6 @@ static CGFloat LCPageDistance = 10.0f;      // pageControl 到底部的距离
         
         self.pageControl.currentPage = currentPage - 1;
     }
-}
-
-- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
-    
-    [self removeTimer];
-}
-
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-    
-    [self addTimer];
 }
 
 @end
