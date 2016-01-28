@@ -73,7 +73,7 @@ static CGFloat LCPageDistance = 10.0f;      // pageControl 到底部的距离
             
             imageView.clipsToBounds = YES;
             imageView.userInteractionEnabled = YES;
-            imageView.contentMode = UIViewContentModeScaleAspectFit;
+            imageView.contentMode = UIViewContentModeScaleAspectFill;
             imageView.frame = CGRectMake(scrollW * i, 0, scrollW, scrollH);
             [scrollView addSubview:imageView];
             
@@ -88,6 +88,9 @@ static CGFloat LCPageDistance = 10.0f;      // pageControl 到底部的距离
         scrollView.contentOffset = CGPointMake(scrollW, 0);
         scrollView.contentSize = CGSizeMake((self.count + 2) * scrollW, 0);
         
+        if(_count == 1){
+            scrollView.scrollEnabled = NO;
+        }
         self.scrollView = scrollView;
     })];
     
