@@ -27,8 +27,24 @@
 
 @interface LCBannerView : UIView
 
+
+@property (nonatomic, weak) id<LCBannerViewDelegate> delegate;
+@property (nonatomic, copy) NSString *imageName;
+@property (nonatomic, strong) NSArray *imageURLs;
+@property (nonatomic, assign) NSInteger count;
+@property (nonatomic, assign) CGFloat timerInterval;
+@property (nonatomic, strong) UIColor *currentPageIndicatorTintColor;
+@property (nonatomic, strong) UIColor *pageIndicatorTintColor;
+@property (nonatomic, copy) NSString *placeholderImage;
+
+@property (nonatomic, strong) NSTimer *timer;
+@property (nonatomic, weak) UIScrollView *scrollView;
+@property (nonatomic, weak) UIPageControl *pageControl;
+
+
 #pragma mark - Class methods
 
+- (void)setupMainView;
 /**
  *  init a LCBannerView object from local
  *
